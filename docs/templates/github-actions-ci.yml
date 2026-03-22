@@ -1,0 +1,29 @@
+# Copy to .github/workflows/ci.yml after granting `workflow` scope to `gh`:
+#   gh auth refresh -s workflow
+# Then: mkdir -p .github/workflows && cp docs/templates/github-actions-ci.yml .github/workflows/ci.yml
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sanity check
+        run: |
+          test -f README.md
+          test -f CONTRIBUTING.md
+          echo "OK — repository skeleton present"
