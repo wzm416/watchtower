@@ -22,6 +22,15 @@ Format aligned with gstack review output from `/plan-eng-review` (2026-03-22).
 - **Context:** V1 is solo+friends; boring-by-default favors **Cloud SQL** in chosen region.
 - **Depends on:** GCP project + **region** ([00-decisions.md](./docs/plans/00-decisions.md)).
 
+### TODO-1b — Gemini discovery spike (optional; after core URL monitor works)
+
+- **What:** Prototype **Vertex AI Gemini** (or Gemini API) call: user **prompt** → **strict JSON** search plan; document schema + rate limits in `docs/plans/gemini-discovery.md`.
+- **Why:** NL “what I want” → structured criteria without autonomous scraping.
+- **Pros:** UX leap; stays on GCP.
+- **Cons:** Cost, latency, safety review, **no** substitute for confirmed product URL.
+- **Context:** See [product-brainstorm-2026-03-22.md](./docs/plans/product-brainstorm-2026-03-22.md) §2.1.
+- **Depends on:** GCP project + **core monitor path** stable.
+
 ### TODO-2 — NL → schedule library spike
 
 - **What:** Spike **dateparser** + **croniter** (or **APScheduler**-style crontab) + **zoneinfo**; document edge cases in `docs/plans/nl-schedule.md`.

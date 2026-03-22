@@ -107,6 +107,15 @@ Scheduler ──► POST /internal/jobs/tick (or /api/v1/internal/cron)
 | **Secrets** | GCP Secret Manager for `DATABASE_URL`, email API key, Google client secret (if server-side flow), cron secret. |
 | **Fetch SSRF** | **Allowlist schemes** `https:` only; optional blocklist for private IPs; timeout **10s** default. |
 | **CORS** | Strict **allowlist** — production web origin only. |
+| **Gemini (if added)** | **Vertex AI Gemini** or **Gemini API** key in Secret Manager; **no** auto-HTTP from model output; **strict JSON schema** output; **per-user rate limit**; **prompt** not logged verbatim in prod without PII policy. |
+
+### 1.4b Optional Gemini-assisted discovery (V1.1+)
+
+Product brainstorm: [product-brainstorm-2026-03-22.md](./product-brainstorm-2026-03-22.md) §2.1.
+
+- **Endpoint (e.g.):** `POST /api/discovery/plan` — body `{ prompt, locale }` → **structured JSON** (keywords, site hints, optional price ceiling) for UI; user still **confirms a product URL** before creating a **Monitor**.  
+- **Infra:** Same GCP project; enable **Vertex AI** API or use **Generative Language API**; Terraform adds **IAM** for service account if needed.  
+- **V1 baseline:** Can ship **without** this route; monitoring is **URL + scrape** only.
 
 ### 1.5 Production failure scenarios (sample)
 
