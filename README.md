@@ -1,6 +1,6 @@
 # Watchtower
 
-Scheduled **merchandise price** monitoring—**natural-language** schedules, **email** alerts; **Google** sign-in. **WhatsApp** is a post-v1 channel. **Codename “Watchtower”** until a final name is chosen (see [plans](./docs/plans/)).
+Scheduled **merchandise price** monitoring—**natural-language** schedules, **email** alerts; **Google** sign-in. **WhatsApp** is a post-v1 channel. Product name: **Watchtower** (see [plans](./docs/plans/)).
 
 ## Status
 

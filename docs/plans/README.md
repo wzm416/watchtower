@@ -1,4 +1,4 @@
-# Product plans (Watchtower → rename before `DESIGN.md`)
+# Product plans (Watchtower)
 
 Step-by-step planning: **master decisions** and **focused sub-plans** so each milestone can be reviewed and implemented without re-reading everything.
 
@@ -10,4 +10,4 @@ Step-by-step planning: **master decisions** and **focused sub-plans** so each mi
 
 **Gstack review chain (your preference):** after design passes on these docs → **`/plan-eng-review`** before large implementation.
 
-**Blocking before `DESIGN.md`:** final **product name** (see `00-decisions.md`).
+**Product name:** **Watchtower** (locked for v1 design/engineering). **Still open:** GCP **region** (see `00-decisions.md`).
