@@ -66,12 +66,20 @@
 
 **CORS:** API allows **only** the deployed **web** origin(s). **Secrets:** `DATABASE_URL`, email API key, `GOOGLE_CLIENT_ID`, cron verifier secret / rely on **OIDC** from Scheduler.
 
+### 1.1b Infrastructure as code (Terraform)
+
+- **Goal:** Declare **GCP** resources ( **Cloud Run** `api` + `web`, **Cloud SQL** Postgres, **Cloud Scheduler** job(s), **Secret Manager** refs, **IAM** for Scheduler→Run OIDC ) in **Terraform** so environments are **reproducible** and changes are **reviewable**.  
+- **Portability:** Terraform is **GCP-provider** today; the **same** app pattern (containers + Postgres + HTTP cron) maps to **other clouds** by swapping **providers/modules**—not zero work, but **no ad-hoc console** drift. Optional later: extract **container + DB** into modules with **variables** for naming/SKU.  
+- **State:** Remote backend **GCS** (or Terraform Cloud); **never** commit `terraform.tfstate`.  
+- **Scope:** Infra only — **not** application logic. See brainstorm: [product-brainstorm-2026-03-22.md](./product-brainstorm-2026-03-22.md).
+
 ### 1.2 Core domain model (logical)
 
 - **User** — id, google sub, email, timezone default.  
-- **Monitor** — userId, label, productUrl, optional cssSelector, scheduleCron, timezone, status (active/paused), lastRunAt, lastPrice, parseConfidence.  
-- **Run** — monitorId, startedAt, finishedAt, httpStatus, rawSnippet?, parsedPrice?, errorCode?  
-- **Notification** — monitorId, sentAt, channel=email, templateId, status.
+- **Monitor** — userId, label, productUrl, optional cssSelector, scheduleCron, timezone, status (active/paused), optional **target_price_minor**; denormalized **lastPrice** for list views (or derive from latest snapshot).  
+- **Run** — monitorId, startedAt, finishedAt, httpStatus, rawSnippet?, parsedPrice?, errorCode?, parseConfidence.  
+- **PriceSnapshot** — append-only **history**: monitorId, runId (FK), **observedAt**, **amountMinor**, **currency** (ISO 4217), **confidence**; one row per **successful** parse (see brainstorm). Powers **charts** and “lowest in window.”  
+- **Notification** — monitorId, sentAt, channel=email, templateId, status, dedupe key.
 
 ### 1.3 Job execution path
 
@@ -82,10 +90,11 @@ Scheduler ──► POST /internal/jobs/tick (or /api/v1/internal/cron)
               │
               └─► for each (bounded concurrency):
                     fetch URL ──► parse HTML ──► extract price
-                    compare to previous ──► persist Run
+                    compare to previous snapshot ──► persist Run + **PriceSnapshot**
                     if rule fires ──► send email (idempotent key)
 ```
 
+**History:** Every **successful** parse creates a **PriceSnapshot** row (append-only). **UI** reads history for sparkline/table; **retention** policy TBD (e.g. 90d or unlimited for MVP).  
 **Idempotency:** `notification` rows dedupe `(monitorId, priceBucket, day)` or event-id to avoid email storms on retries.
 
 ### 1.4 Security architecture

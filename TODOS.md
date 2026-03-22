@@ -4,6 +4,15 @@ Format aligned with gstack review output from `/plan-eng-review` (2026-03-22).
 
 ## Open
 
+### TODO-0 — Terraform baseline (`terraform/`)
+
+- **What:** Add **Terraform** layout: `terraform/environments/{staging,prod}`, **GCS backend** for state, **modules** for Cloud SQL + Cloud Run + Scheduler + IAM; document `terraform apply` in `docs/plans/gcp-terraform.md`.
+- **Why:** Reproducible GCP; easier **migration** later (swap provider blocks, keep patterns).
+- **Pros:** Reviewable infra; no click-ops drift.
+- **Cons:** Learning curve; state file hygiene.
+- **Context:** User wants **future multi-cloud** flexibility — **not** full portability in V1, **IaC discipline** first.
+- **Depends on:** GCP project + billing.
+
 ### TODO-1 — Lock Postgres hosting
 
 - **What:** Choose **Cloud SQL (Postgres)** vs **Neon** (or other) and document connection + migration strategy in `docs/plans/gcp-runtime.md`.
