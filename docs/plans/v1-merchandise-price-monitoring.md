@@ -190,18 +190,18 @@ What the user **sees** (not backend jargon):
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | — | Not run | Optional |
 | Codex Review | `/codex review` | 2nd opinion | — | Not run | Optional |
-| Eng Review | `/plan-eng-review` | Architecture & tests | — | **Pending** | **Required before build** |
-| Design Review | `/plan-design-review` | UI/UX gaps | 1 | **In progress** (this doc) | v1 merchandise design drafted; **DESIGN.md** tokens + **GCP region** still open |
+| Eng Review | `/plan-eng-review` | Architecture & tests | 1 | **CLEAR** (see [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md)) | Monolith Next.js, Postgres, Scheduler, Auth.js; tests for parse/schedule |
+| Design Review | `/plan-design-review` | UI/UX gaps | 1 | prior (this doc) | **DESIGN.md** tokens + **GCP region** still open |
 
-**UNRESOLVED:** **GCP region**; **design-consultation** for tokens (`DESIGN.md`).  
+**UNRESOLVED:** **GCP region**; **design-consultation** for tokens (`DESIGN.md`); **Postgres host** (Cloud SQL vs Neon) per [TODOS.md](../../TODOS.md).  
 **Resolved (Q13):** Product name — **Watchtower**.  
-**VERDICT:** **Eng review** still required before implementation; **DESIGN.md** can use the name **Watchtower**.
+**VERDICT:** **Eng + design plans** ready to drive implementation; pick **region** at GCP setup.
 
 ---
 
 ## Next step
 
-Run **`/plan-eng-review`** on these plans (and add sub-plans: Google auth, email delivery, GCP runtime as needed). Pick **GCP region** when creating the project.
+Implement per [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md); pick **GCP region** when creating the project. Optional: **`/design-consultation`** for `DESIGN.md`.
 
 ---
 
