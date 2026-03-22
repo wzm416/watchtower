@@ -1,7 +1,7 @@
 # V1 — Merchandise price monitoring (product design)
 
 > **Plan-design-review** artifact: design decisions for what users **see** and **feel** before implementation.  
-> **Stack:** TypeScript + Next.js on GCP (execution plan → `/plan-eng-review`).  
+> **Stack:** **Python** (API) + **React** (web) on GCP — see [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md).  
 > **Product name:** **Watchtower** (locked for v1; see [00-decisions.md](./00-decisions.md)).
 
 ---
@@ -190,7 +190,7 @@ What the user **sees** (not backend jargon):
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | — | Not run | Optional |
 | Codex Review | `/codex review` | 2nd opinion | — | Not run | Optional |
-| Eng Review | `/plan-eng-review` | Architecture & tests | 1 | **CLEAR** (see [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md)) | Monolith Next.js, Postgres, Scheduler, Auth.js; tests for parse/schedule |
+| Eng Review | `/plan-eng-review` | Architecture & tests | 1 | **CLEAR** (see [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md)) | Python API + React, Postgres, Scheduler; tests for parse/schedule *(stack updated post-review)* |
 | Design Review | `/plan-design-review` | UI/UX gaps | 1 | prior (this doc) | **DESIGN.md** tokens + **GCP region** still open |
 
 **UNRESOLVED:** **GCP region**; **design-consultation** for tokens (`DESIGN.md`); **Postgres host** (Cloud SQL vs Neon) per [TODOS.md](../../TODOS.md).  

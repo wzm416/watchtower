@@ -10,6 +10,7 @@ Scheduled **merchandise price** monitoring—**natural-language** schedules, **e
 
 | Area | Intent |
 |------|--------|
+| Stack | **Python** backend (API) + **React** frontend; **GCP Cloud Run** + Scheduler |
 | Jobs | **HTTP + DOM price scrape** first; NL → schedule; user scripts later |
 | UI | **Linear-like** dense dashboard (see product plan) |
 | Identity | **Sign in with Google** (required for v1) |

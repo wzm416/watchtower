@@ -6,7 +6,7 @@
 
 | # | Decision |
 |---|----------|
-| 1 | **1A:** Full **7-pass** plan-design-review on written plans + **TypeScript + Next.js** on **GCP Cloud Run** (with **Cloud Scheduler**), per prior recommendation. |
+| 1 | **1A:** Full **7-pass** plan-design-review on written plans + **Python backend** + **React frontend** on **GCP** (**Cloud Run** + **Cloud Scheduler**). *Supersedes earlier “Next.js monolith” draft.* |
 | 14 | Plans live under **`docs/plans/`** with **sub-plan docs per step/milestone** (this folder). |
 | 15 | Use gstack sequence: **plan-design-review → plan-eng-review** before heavy build. |
 

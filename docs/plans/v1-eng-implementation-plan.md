@@ -4,6 +4,13 @@
 > **Inputs:** [00-decisions.md](./00-decisions.md), [v1-merchandise-price-monitoring.md](./v1-merchandise-price-monitoring.md)  
 > **Codex plan pass:** skipped (`codex` CLI not installed).
 
+### Architecture change (2026-03-22)
+
+**Supersedes** the earlier draft that proposed a **Next.js monolith**. **V1 is now:**
+
+- **Backend:** **Python** (**FastAPI** recommended) on **Cloud Run** — REST API, jobs, scraping, email.
+- **Frontend:** **React** (**Vite** recommended) — SPA calling the API; **Google Sign-In** in the browser, **ID token** verified on the API.
+
 ---
 
 ## Step 0 — Scope challenge
@@ -11,13 +18,13 @@
 | Question | Answer |
 |----------|--------|
 | **Existing code solving sub-problems?** | **None** — repo is docs + CI only. No parallel flows to reuse. |
-| **Minimum change for V1?** | One **Next.js** app on **Cloud Run** + **Postgres** + **Google OAuth** + **Scheduler-triggered jobs** + **email**. Defer: WhatsApp, user scripts, site-specific connectors beyond generic fetch+selector. |
-| **Complexity smell (8+ files / 2+ services)?** | First slice should stay **one deployable** (monolith Next.js) + **managed DB** + **one email provider**. Split workers only if job runtime exceeds HTTP limits. |
-| **Search / built-ins [Layer 1]** | Use **Auth.js (NextAuth v5)** for Google OAuth; **Cloud Scheduler → HTTP** on Cloud Run; **Cloud SQL (Postgres)** or **Neon** (if leaving pure-GCP optional); **chrono-node** or **@breejs/later** + explicit cron display for NL→schedule; **cheerio** for server-side DOM. |
-| **TODOS.md** | Created — see [TODOS.md](../../TODOS.md). |
-| **Completeness vs shortcut** | Prefer **complete error paths + tests for domain logic** (price parse, schedule parse, job orchestration); AI makes this cheap per Boil the Lake. |
+| **Minimum change for V1?** | **Python API** + **React SPA** + **Postgres** + **Google OAuth (token verify)** + **Cloud Scheduler → HTTP** + **email**. Defer: WhatsApp, user scripts, site-specific connectors beyond generic fetch+selector. |
+| **Complexity smell (8+ files / 2+ services)?** | **Two deployables** is acceptable: **`api`** (Python) + **`web`** (static React on Cloud Run or GCS+LB). Same **Postgres** + **one email provider**. Split only further if job CPU exceeds API **timeout** (then optional worker service). |
+| **Search / built-ins [Layer 1]** | **FastAPI** + **SQLAlchemy 2** + **Alembic**; **Google `google-auth`** / **oauthlib** to verify **ID tokens**; **httpx** for HTTP fetch; **beautifulsoup4** + **lxml** for DOM; **dateparser** + **croniter** (and **zoneinfo**) for NL→schedule; **Cloud Scheduler → HTTP** on **same API** (`/internal/jobs/tick`) with **OIDC/HMAC**; **pytest** for tests. |
+| **TODOS.md** | See [TODOS.md](../../TODOS.md). |
+| **Completeness vs shortcut** | Prefer **complete error paths + tests** for **parse/schedule/compare** in Python; AI makes this cheap per Boil the Lake. |
 
-**Scope accepted:** Single-region, single service V1; **innovation tokens** spent on **reliable scraping + NL schedule**, not microservices.
+**Scope accepted:** Single region; **two** user-facing deployables (API + web); innovation tokens on **scraping + NL schedule**, not microservice sprawl.
 
 ---
 
@@ -32,27 +39,32 @@
 ### 1.1 System context
 
 ```
-                    ┌─────────────┐
-  Users ──────────► │  Next.js    │◄─── Google OAuth (Auth.js)
-  (browser)         │  Cloud Run  │
-                    └──────┬──────┘
-                           │
-         ┌─────────────────┼─────────────────┐
-         ▼                 ▼                 ▼
-   ┌──────────┐     ┌────────────┐    ┌─────────────┐
-   │ Postgres │     │ Secret     │    │ Email API   │
-   │ (Cloud   │     │ Manager    │    │ (Resend /   │
-   │  SQL or  │     │ (GCP)      │    │  SES / etc) │
-   │  Neon)   │     └────────────┘    └─────────────┘
-   └──────────┘
-         ▲
-         │  job enqueue / state
-         │
-   ┌─────┴──────────────┐
-   │ Cloud Scheduler     │  (HTTP POST + auth)
-   │ e.g. */5 * * * *    │
-   └────────────────────┘
+  Users (browser)
+       │
+       ▼
+┌──────────────┐     Google Sign-In     ┌─────────────────────┐
+│ React (Vite) │ ──── (ID token) ────► │ Python FastAPI      │
+│ Cloud Run or │     HTTPS / JSON       │ Cloud Run (`api`)   │
+│ GCS + CDN    │ ◄── REST + CORS ─────  │                     │
+└──────────────┘                        └──────────┬──────────┘
+                                                   │
+              ┌────────────────────────────────────┼────────────────┐
+              ▼                    ▼                 ▼                ▼
+        ┌──────────┐       ┌────────────┐   ┌─────────────┐  ┌──────────┐
+        │ Postgres │       │ Secret Mgr │   │ Email API   │  │ httpx    │
+        │ Cloud SQL│       │ (GCP)      │   │ (Resend/…)  │  │ → shops  │
+        │ or Neon  │       └────────────┘   └─────────────┘  └──────────┘
+        └──────────┘
+              ▲
+              │  Cloud Scheduler  (OIDC or HMAC)
+              │
+        ┌─────┴──────────────┐
+        │ POST /internal/... │
+        │ e.g. */5 * * * *   │
+        └────────────────────┘
 ```
+
+**CORS:** API allows **only** the deployed **web** origin(s). **Secrets:** `DATABASE_URL`, email API key, `GOOGLE_CLIENT_ID`, cron verifier secret / rely on **OIDC** from Scheduler.
 
 ### 1.2 Core domain model (logical)
 
@@ -64,7 +76,7 @@
 ### 1.3 Job execution path
 
 ```
-Scheduler ──► POST /api/jobs/tick (or /api/internal/cron)
+Scheduler ──► POST /internal/jobs/tick (or /api/v1/internal/cron)
               │
               ├─► list due monitors (query by next_run)
               │
@@ -80,10 +92,12 @@ Scheduler ──► POST /api/jobs/tick (or /api/internal/cron)
 
 | Concern | Mitigation |
 |---------|------------|
+| **Google auth** | React obtains **ID token** (GIS); API validates with **`google-auth`** (`verify_oauth2_token`) and maps **sub** → `User`; session via **httpOnly cookie** (API-set) or **short-lived JWT** — pick one and document. |
 | **Cron endpoint abuse** | **No public cron** — verify **OIDC token** from Scheduler (recommended) or **HMAC secret** in header; reject otherwise. |
-| **User data isolation** | All queries **scoped by userId** from session; RLS optional phase-2. |
-| **Secrets** | GCP Secret Manager for `DATABASE_URL`, email API key, cron secret. |
+| **User data isolation** | All queries **scoped by userId** from validated identity; RLS optional phase-2. |
+| **Secrets** | GCP Secret Manager for `DATABASE_URL`, email API key, Google client secret (if server-side flow), cron secret. |
 | **Fetch SSRF** | **Allowlist schemes** `https:` only; optional blocklist for private IPs; timeout **10s** default. |
+| **CORS** | Strict **allowlist** — production web origin only. |
 
 ### 1.5 Production failure scenarios (sample)
 
@@ -94,8 +108,8 @@ Scheduler ──► POST /api/jobs/tick (or /api/internal/cron)
 | Scheduler duplicate tick | **Idempotent** job keys + transaction around “claim” monitor run. |
 | Email provider down | Retry with backoff; **dead letter** row or alert to admin. |
 
-**Architecture issues count:** **0 blocking** — one open **product** choice: **Postgres on Cloud SQL (GCP-native)** vs **Neon** (simpler ops, cross-cloud).  
-**RECOMMENDATION [Layer 1]:** **Cloud SQL Postgres** in chosen region for **boring-by-default** GCP alignment; Neon acceptable if team prefers serverless Postgres and simpler billing.
+**Architecture issues count:** **0 blocking** — open **infra** choices: **Postgres on Cloud SQL** vs **Neon**; **web** on **Cloud Run** (nginx/static) vs **Cloud Storage + HTTPS LB** (cheaper static).  
+**RECOMMENDATION [Layer 1]:** **Cloud SQL Postgres** + **two Cloud Run services** (`api`, `web`) for **simple mental model** and **private networking** options later.
 
 ---
 
@@ -103,9 +117,10 @@ Scheduler ──► POST /api/jobs/tick (or /api/internal/cron)
 
 | Topic | Guidance |
 |-------|----------|
-| **Layout** | `app/` routes, `lib/db`, `lib/jobs`, `lib/parse`, `lib/email`, `lib/auth`; **no** god `utils.ts`. |
-| **DRY** | Single **fetch+parse** pipeline; shared **error taxonomy** for monitors. |
-| **Explicit > clever** | Store **cron string + IANA timezone**; show **human** schedule from same source of truth. |
+| **Layout (Python)** | `app/` or `src/` with **routers**, `services/`, `models/`, `schemas/`; **parse** and **schedule** in **pure functions** + `tests/`. |
+| **Layout (React)** | `src/` features or **route-based** folders; shared **UI primitives** for Linear-like density. |
+| **DRY** | Single **fetch+parse** pipeline in Python; shared **error codes** for API + UI. |
+| **Explicit > clever** | Store **cron + timezone** in DB; API returns **both** machine and **human** summary for schedules. |
 
 **Issues flagged:** **0** (implementation not started).
 
@@ -126,7 +141,7 @@ comparePrices(old, new, rule) ──► shouldNotify boolean
 | Schedule parsing / timezone | **Unit** — edge cases for ambiguous NL (mocked) |
 | Price extraction | **Unit** — fixture HTML snippets |
 | Notification rule | **Unit** — thresholds, equality, first-run |
-| API routes | **Integration** — auth mock + DB test container or sqlite not suitable — use **test Postgres** (docker) or **pglite** |
+| API routes | **Integration** — **pytest** + **TestClient** + **Postgres** (docker **testcontainers** or CI service) |
 | Cron route | **Integration** — OIDC/HMAC verification |
 
 **Test plan artifact:** written to `~/.gstack/projects/wzm416-watchtower/` (see filesystem).
@@ -142,7 +157,7 @@ comparePrices(old, new, rule) ──► shouldNotify boolean
 | **N+1** | Batch load monitors for tick; **limit** monitors per tick wave. |
 | **Fetch slow** | Per-URL **timeout**; max **N** concurrent fetches (config). |
 | **DB** | Indexes on `(userId)`, `(nextRunAt)`; prune old **Run** rows (retention policy). |
-| **Cold start** | Cloud Run **min instances = 0** OK for MVP; set **concurrency** 1–4 for CPU-bound parse. |
+| **Cold start** | Cloud Run **min instances = 0** OK for MVP; **api** concurrency **1–4** if parse is CPU-heavy; **web** is static — near-zero cold start if served from CDN. |
 
 **Issues:** **0** blocking for MVP scale (solo + friends).
 
@@ -181,7 +196,7 @@ comparePrices(old, new, rule) ──► shouldNotify boolean
 
 | Item | Result |
 |------|--------|
-| Step 0 | **Scope accepted** — monolith V1 |
+| Step 0 | **Scope accepted** — Python API + React web V1 |
 | Architecture | **8** observations, **0** unresolved blockers |
 | Code quality | N/A (no code) |
 | Tests | **Diagram + strategy**; **gaps: 0** pre-code |
@@ -204,7 +219,7 @@ comparePrices(old, new, rule) ──► shouldNotify boolean
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | 0 | — | Optional |
 | Codex Review | `/codex review` | 2nd opinion | 0 | — | CLI absent |
-| Eng Review | `/plan-eng-review` | Architecture & tests | 1 | **CLEAR** (with notes) | Monolith V1, Postgres, Scheduler, Auth.js, tests for parse/schedule |
+| Eng Review | `/plan-eng-review` | Architecture & tests | 2 | **CLEAR** (updated) | **Python + React**, Postgres, Scheduler, Google token verify, tests for parse/schedule |
 | Design Review | `/plan-design-review` | UI/UX | 1 | prior | See product plan |
 
 **UNRESOLVED:** Pick **GCP region** at project creation; choose **Cloud SQL vs Neon** for Postgres.  
@@ -214,7 +229,8 @@ comparePrices(old, new, rule) ──► shouldNotify boolean
 
 ## Next steps
 
-1. Merge **`feat/docs-product-plans`** (or open PR from current branch).  
-2. Scaffold **Next.js** + **Auth.js** + **DB** + **single cron** route.  
-3. Implement **parse + schedule** modules **with tests first** (TDD).  
-4. Add **`/plan-design-review`** on UI PRs if components diverge from product plan.
+1. Merge docs branch when ready.  
+2. Scaffold **`api/`** (FastAPI) + **`web/`** (Vite + React) + **Postgres** + **internal cron** route.  
+3. Implement **parse + schedule** in Python **with pytest first** (TDD).  
+4. Wire **Google Sign-In** on React + **token verification** on API.  
+5. **`/plan-design-review`** on UI PRs if screens diverge from the product plan.

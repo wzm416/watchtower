@@ -15,7 +15,7 @@ Format aligned with gstack review output from `/plan-eng-review` (2026-03-22).
 
 ### TODO-2 — NL → schedule library spike
 
-- **What:** Spike **chrono-node** (or alternative) + timezone handling; document edge cases in `docs/plans/nl-schedule.md`.
+- **What:** Spike **dateparser** + **croniter** (or **APScheduler**-style crontab) + **zoneinfo**; document edge cases in `docs/plans/nl-schedule.md`.
 - **Why:** Core UX promise; bugs here erode trust.
 - **Pros:** Smaller than custom NLP; testable.
 - **Cons:** Library maintenance; locale quirks.
