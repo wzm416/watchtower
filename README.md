@@ -1,20 +1,20 @@
 # Watchtower
 
-Scheduled monitoring jobs with notifications—watch prices, pages, or custom checks; get concise summaries by **email** or **SMS**.
+Scheduled **merchandise price** monitoring—**natural-language** schedules, **email** alerts; **Google** sign-in. **WhatsApp** is a post-v1 channel. **Codename “Watchtower”** until a final name is chosen (see [plans](./docs/plans/)).
 
 ## Status
 
-**Phase 0:** Repository and contribution workflow are set up. Application code, GCP deployment, and auth flows will land behind feature branches and PRs.
+**Phase 0:** Repo + CI. **Phase 1 (planned):** V1 product design and eng plan in [`docs/plans/`](./docs/plans/) — implementation follows **`/plan-eng-review`**.
 
 ## Goals (roadmap)
 
 | Area | Intent |
 |------|--------|
-| Jobs | User-defined schedules (cron-style) for fetching, comparing, and summarizing |
-| UI | Clear dashboard to create/edit jobs and view history |
-| Identity | Sign-in with **Google** for email delivery; verified channel for SMS |
-| Notifications | Email (transactional) and SMS (provider TBD) |
-| Hosting | **Google Cloud Platform** (details in upcoming `docs/gcp/`) |
+| Jobs | **HTTP + DOM price scrape** first; NL → schedule; user scripts later |
+| UI | **Linear-like** dense dashboard (see product plan) |
+| Identity | **Sign in with Google** (required for v1) |
+| Notifications | **Email only** in v1 (immediate); WhatsApp later |
+| Hosting | **GCP** — region closest to operator (documented in runbooks later) |
 
 ## Repository
 
@@ -26,6 +26,7 @@ Scheduled monitoring jobs with notifications—watch prices, pages, or custom ch
 - [Branch protection](./docs/BRANCH_PROTECTION.md) — enforce `main` via GitHub
 - [CI workflow template](./docs/templates/github-actions-ci.yml) — copy into `.github/workflows/` after `gh auth refresh -s workflow`
 - [Security](./SECURITY.md) — reporting vulnerabilities
+- [Product plans](./docs/plans/) — decisions + V1 merchandise design (plan-design-review)
 
 ## License
 

@@ -1,0 +1,13 @@
+# Product plans (Watchtower → rename before `DESIGN.md`)
+
+Step-by-step planning: **master decisions** and **focused sub-plans** so each milestone can be reviewed and implemented without re-reading everything.
+
+| Doc | Purpose |
+|-----|---------|
+| [00-decisions.md](./00-decisions.md) | Locked answers from product Q&A (stack, scope, channels, auth). |
+| [v1-merchandise-price-monitoring.md](./v1-merchandise-price-monitoring.md) | **V1 product design** — merchandise price tracking, stores, UI/flows, states (plan-design-review). |
+| *future* | `v1-auth-google.md`, `v1-notifications-email.md`, `gcp-runtime.md` — add as steps solidify. |
+
+**Gstack review chain (your preference):** after design passes on these docs → **`/plan-eng-review`** before large implementation.
+
+**Blocking before `DESIGN.md`:** final **product name** (see `00-decisions.md`).
