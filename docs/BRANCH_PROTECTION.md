@@ -13,24 +13,43 @@ The goal is: **no direct pushes to `main`**; all changes merge via **pull reques
 
 ## Option B — GitHub CLI
 
-If your token has `admin` scope on the repo, you can apply protection via API. Example (adjust to your checks):
+If your token has `admin` scope on the repo, you can apply protection via API.
+
+**Do not paste angle brackets** like `<owner>/<repo>` in zsh: `<` starts **input redirection**, so the shell tries to open a file named `owner` and fails with `no such file or directory: owner`. Use your real repo path instead, e.g. `repos/wzm416/watchtower`.
+
+The **pull_request** rule must include the **full** `parameters` object (GitHub returns `422` if fields are missing). Example:
 
 ```bash
-gh api repos/<owner>/<repo>/rulesets --method POST --input - <<'EOF'
+gh api repos/wzm416/watchtower/rulesets --method POST --input - <<'EOF'
 {
   "name": "protect-main",
   "target": "branch",
   "enforcement": "active",
   "conditions": {
-    "ref_name": { "include": ["refs/heads/main"], "exclude": [] }
+    "ref_name": {
+      "include": ["refs/heads/main"],
+      "exclude": []
+    }
   },
   "rules": [
-    { "type": "pull_request", "parameters": { "required_approving_review_count": 1 } },
+    {
+      "type": "pull_request",
+      "parameters": {
+        "allowed_merge_methods": ["merge", "squash", "rebase"],
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_review": false,
+        "require_last_push_approval": false,
+        "required_approving_review_count": 1,
+        "required_review_thread_resolution": false
+      }
+    },
     { "type": "non_fast_forward" }
   ]
 }
 EOF
 ```
+
+Replace `wzm416/watchtower` with `YOUR_GITHUB_USER/YOUR_REPO` (no `<` `>`).
 
 If you see permission errors, use **Option A** or ask an org owner to enable rules.
 
