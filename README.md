@@ -16,10 +16,15 @@ Scheduled monitoring jobs with notifications—watch prices, pages, or custom ch
 | Notifications | Email (transactional) and SMS (provider TBD) |
 | Hosting | **Google Cloud Platform** (details in upcoming `docs/gcp/`) |
 
+## Repository
+
+**https://github.com/wzm416/watchtower**
+
 ## Quick links
 
 - [Contributing](./CONTRIBUTING.md) — branches, PRs, reviews
 - [Branch protection](./docs/BRANCH_PROTECTION.md) — enforce `main` via GitHub
+- [CI workflow template](./docs/templates/github-actions-ci.yml) — copy into `.github/workflows/` after `gh auth refresh -s workflow`
 - [Security](./SECURITY.md) — reporting vulnerabilities
 
 ## License
