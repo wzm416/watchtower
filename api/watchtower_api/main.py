@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from watchtower_api.config import get_settings
-from watchtower_api.routers import health
+from watchtower_api.routers import health, internal, monitors
 
 settings = get_settings()
 
@@ -21,6 +21,8 @@ app.add_middleware(
 )
 
 app.include_router(health.router)
+app.include_router(monitors.router)
+app.include_router(internal.router)
 
 
 @app.get("/")

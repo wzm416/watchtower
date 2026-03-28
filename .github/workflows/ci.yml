@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://watchtower:watchtower@localhost:5432/watchtower
+      GOOGLE_CLIENT_IDS: ci-test-google-client-id
+      CRON_BEARER_TOKEN: ci-test-cron-bearer
     services:
       postgres:
         image: postgres:16-alpine

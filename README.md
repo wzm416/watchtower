@@ -18,7 +18,7 @@ uvicorn watchtower_api.main:app --reload --host 0.0.0.0 --port 8000
 cd web && npm install && npm run dev
 ```
 
-Copy `api/.env.example` → `api/.env` and `web/.env.example` → `web/.env`. For the API, run Postgres locally (or use Cloud SQL/Neon), set `DATABASE_URL`, then `cd api && alembic upgrade head` before exercising persistence or DB tests.
+Copy `api/.env.example` → `api/.env` and `web/.env.example` → `web/.env`. For the API, run Postgres locally (or use Cloud SQL/Neon), set `DATABASE_URL`, `GOOGLE_CLIENT_IDS`, and `CRON_BEARER_TOKEN`, then `cd api && alembic upgrade head`. The SPA should send the Google **ID token** as `Authorization: Bearer` when calling `/api/v1/monitors`.
 
 ## Goals (roadmap)
 
