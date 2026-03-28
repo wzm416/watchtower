@@ -1,0 +1,29 @@
+:root {
+  --bg-app: #0c0c0f;
+  --bg-sidebar: #09090b;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --border: #27272a;
+  --text: #e4e4e7;
+  --text-strong: #fafafa;
+  --text-muted: #a1a1aa;
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+}

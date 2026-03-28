@@ -33,11 +33,14 @@ logs/
 coverage/
 .nyc_output/
 
-# Python (if used later)
+# Python
 __pycache__/
 *.py[cod]
 .venv/
 venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
 
 # Terraform / GCP local
 .terraform/
