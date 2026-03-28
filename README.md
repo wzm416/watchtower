@@ -18,7 +18,7 @@ uvicorn watchtower_api.main:app --reload --host 0.0.0.0 --port 8000
 cd web && npm install && npm run dev
 ```
 
-Copy `api/.env.example` → `api/.env` and `web/.env.example` → `web/.env` when you add configuration.
+Copy `api/.env.example` → `api/.env` and `web/.env.example` → `web/.env`. For the API, run Postgres locally (or use Cloud SQL/Neon), set `DATABASE_URL`, then `cd api && alembic upgrade head` before exercising persistence or DB tests.
 
 ## Goals (roadmap)
 

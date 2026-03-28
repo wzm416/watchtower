@@ -14,6 +14,22 @@ jobs:
   api:
     name: API
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://watchtower:watchtower@localhost:5432/watchtower
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: watchtower
+          POSTGRES_PASSWORD: watchtower
+          POSTGRES_DB: watchtower
+        options: >-
+          --health-cmd "pg_isready -U watchtower -d watchtower"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     defaults:
       run:
         working-directory: api
@@ -28,6 +44,8 @@ jobs:
         run: ruff check .
       - name: Ruff format
         run: ruff format --check .
+      - name: Alembic upgrade
+        run: alembic upgrade head
       - name: Pytest
         run: pytest
 
