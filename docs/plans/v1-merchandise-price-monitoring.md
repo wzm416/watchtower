@@ -1,8 +1,8 @@
 # V1 — Merchandise price monitoring (product design)
 
 > **Plan-design-review** artifact: design decisions for what users **see** and **feel** before implementation.  
-> **Stack:** TypeScript + Next.js on GCP (execution plan → `/plan-eng-review`).  
-> **Codename:** Watchtower until renamed (see [00-decisions.md](./00-decisions.md)).
+> **Stack:** **Python** (API) + **React** (web) on GCP — see [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md).  
+> **Product name:** **Watchtower** (locked for v1; see [00-decisions.md](./00-decisions.md)).
 
 ---
 
@@ -190,27 +190,18 @@ What the user **sees** (not backend jargon):
 |--------|---------|-----|------|--------|----------|
 | CEO Review | `/plan-ceo-review` | Scope & strategy | — | Not run | Optional |
 | Codex Review | `/codex review` | 2nd opinion | — | Not run | Optional |
-| Eng Review | `/plan-eng-review` | Architecture & tests | — | **Pending** | **Required before build** |
-| Design Review | `/plan-design-review` | UI/UX gaps | 1 | **In progress** (this doc) | v1 merchandise design drafted; **name** + **DESIGN.md** open |
+| Eng Review | `/plan-eng-review` | Architecture & tests | 1 | **CLEAR** (see [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md)) | Python API + React, Postgres, Scheduler; tests for parse/schedule *(stack updated post-review)* |
+| Design Review | `/plan-design-review` | UI/UX gaps | 1 | prior (this doc) | **DESIGN.md** tokens + **GCP region** still open |
 
-**UNRESOLVED:** Final **product name**; **GCP region**; **design-consultation** for tokens.  
-**VERDICT:** Design **not** fully CLEAR until **eng review** + **DESIGN.md** — **eng review required** before implementation.
+**UNRESOLVED:** **GCP region**; **design-consultation** for tokens (`DESIGN.md`); **Postgres host** (Cloud SQL vs Neon) per [TODOS.md](../../TODOS.md).  
+**Resolved (Q13):** Product name — **Watchtower**.  
+**VERDICT:** **Eng + design plans** ready to drive implementation; pick **region** at GCP setup.
 
 ---
 
-## Next step (AskUserQuestion — gstack format)
+## Next step
 
-**Re-ground:** **Watchtower** repo, branch **`main`** (docs will land on a feature branch), task: **close open design decisions** before implementation.
-
-**Simplify:** We need a **name** and a **region** so engineers and designers don’t build the wrong thing.
-
-**RECOMMENDATION:** Choose **name** first (blocks `DESIGN.md`), then **GCP region** when you create the GCP project. **Completeness:** A 10/10, B 8/10.
-
-**Options:**
-
-- **A)** Reply with **final product name** in the next message (one word or short phrase).  
-- **B)** Use a **temporary codename** for another week and run **design-consultation** in parallel with eng review.  
-- **C)** **Pause** implementation until both **name** and **home region** (e.g. `us-central1`, `asia-southeast1`) are fixed.
+Implement per [v1-eng-implementation-plan.md](./v1-eng-implementation-plan.md); pick **GCP region** when creating the project. Optional: **`/design-consultation`** for `DESIGN.md`.
 
 ---
 

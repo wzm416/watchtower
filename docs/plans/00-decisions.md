@@ -1,12 +1,12 @@
 # Locked product decisions (from Q1–15)
 
-> **Repo codename:** still **Watchtower** until a final name is chosen (required before locking `DESIGN.md`).
+> **Product name:** **Watchtower** — confirmed for **eng review and initial `DESIGN.md`** (option **B**); rename later if needed.
 
 ## Stack & process
 
 | # | Decision |
 |---|----------|
-| 1 | **1A:** Full **7-pass** plan-design-review on written plans + **TypeScript + Next.js** on **GCP Cloud Run** (with **Cloud Scheduler**), per prior recommendation. |
+| 1 | **1A:** Full **7-pass** plan-design-review on written plans + **Python backend** + **React frontend** on **GCP** (**Cloud Run** + **Cloud Scheduler**). *Supersedes earlier “Next.js monolith” draft.* |
 | 14 | Plans live under **`docs/plans/`** with **sub-plan docs per step/milestone** (this folder). |
 | 15 | Use gstack sequence: **plan-design-review → plan-eng-review** before heavy build. |
 
@@ -35,13 +35,14 @@
 | # | Decision |
 |---|----------|
 | 12 | **Visual direction:** **Linear-like** — dense, calm, keyboard-friendly, professional (not generic “AI SaaS” cards). |
-| 13 | **Rename** the product **before** locking **`DESIGN.md`** (working title: TBD). |
+| 13 | **Name:** keep **Watchtower** for now (through eng review / first design system); optional rename post–v1. |
 
 ## Contradictions resolved
 
 - **WhatsApp vs email:** v1 is **email only**; **WhatsApp** is explicitly **post-v1** so we don’t block shipping.
 
-## Open (must fill before `DESIGN.md`)
+## Open (before first GCP deploy)
 
-1. **Final product name** (replace codename everywhere).
-2. **Exact GCP region** once home location / quota is known.
+1. **Exact GCP region** once home location / quota is known.
+
+**Resolved:** Product name — **Watchtower** (see Q13 option B).
