@@ -11,6 +11,15 @@ class Settings(BaseSettings):
     # Shared secret for Cloud Scheduler / internal cron (Bearer token value)
     cron_bearer_token: str | None = None
 
+    fetch_timeout_seconds: float = 10.0
+    tick_default_limit: int = 20
+
+    # Resend (https://resend.com) — optional; emails skipped if unset
+    resend_api_key: str | None = None
+    resend_from_email: str | None = None
+    # Public web origin for links in emails (no trailing slash)
+    app_public_url: str | None = None
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

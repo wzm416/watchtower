@@ -51,8 +51,9 @@ def test_tick_requires_bearer(monkeypatch: pytest.MonkeyPatch, db_session: Sessi
         )
         assert ok.status_code == 200
         data = ok.json()
-        assert data["due_monitors"] == 0
+        assert data["due_candidates"] == 0
         assert data["processed"] == 0
+        assert data["errors"] == []
     finally:
         app.dependency_overrides.clear()
 

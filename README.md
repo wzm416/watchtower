@@ -18,7 +18,9 @@ uvicorn watchtower_api.main:app --reload --host 0.0.0.0 --port 8000
 cd web && npm install && npm run dev
 ```
 
-Copy `api/.env.example` → `api/.env` and `web/.env.example` → `web/.env`. For the API, run Postgres locally (or use Cloud SQL/Neon), set `DATABASE_URL`, `GOOGLE_CLIENT_IDS`, and `CRON_BEARER_TOKEN`, then `cd api && alembic upgrade head`. The SPA should send the Google **ID token** as `Authorization: Bearer` when calling `/api/v1/monitors`.
+Copy `api/.env.example` → `api/.env` and `web/.env.example` → `web/.env`. For the API, run Postgres locally (or use Cloud SQL/Neon), set `DATABASE_URL`, `GOOGLE_CLIENT_IDS`, and `CRON_BEARER_TOKEN`, then `cd api && alembic upgrade head`. Optional: **Resend** keys for email alerts (`RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `APP_PUBLIC_URL`). For the web app, set **`VITE_GOOGLE_CLIENT_ID`**; leave **`VITE_API_URL`** empty in dev so the Vite proxy forwards `/api` and `/internal` to the API on port 8000.
+
+Infrastructure sketch: [`docs/plans/gcp-terraform.md`](./docs/plans/gcp-terraform.md) and [`terraform/`](./terraform/).
 
 ## Goals (roadmap)
 

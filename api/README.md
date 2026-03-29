@@ -27,7 +27,8 @@ uvicorn watchtower_api.main:app --reload --host 0.0.0.0 --port 8000
 
 - Health: `GET http://localhost:8000/health`
 - Monitors (Google ID token, `Authorization: Bearer <token>`): `GET/POST /api/v1/monitors`, `GET/PATCH/DELETE /api/v1/monitors/{id}`
-- Internal cron: `POST /internal/jobs/tick` with `Authorization: Bearer <CRON_BEARER_TOKEN>`
+- Schedule hint: `POST /api/v1/schedule/translate` — NL / cron validation + `next_run_at`
+- Internal cron: `POST /internal/jobs/tick?limit=20` with `Authorization: Bearer <CRON_BEARER_TOKEN>` (fetch → parse → `Run` / `PriceSnapshot` → optional Resend email)
 - OpenAPI: `http://localhost:8000/docs`
 
 ## Test

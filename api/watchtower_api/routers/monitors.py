@@ -11,6 +11,7 @@ from watchtower_api.db.session import get_db
 from watchtower_api.deps import get_current_user
 from watchtower_api.models import Monitor, User
 from watchtower_api.schemas.monitor import MonitorCreate, MonitorRead, MonitorUpdate
+from watchtower_api.services.tick_runner import refresh_monitor_next_run
 
 router = APIRouter(prefix="/api/v1/monitors", tags=["monitors"])
 
@@ -48,6 +49,8 @@ def create_monitor(
         target_price_minor=body.target_price_minor,
     )
     db.add(mon)
+    db.flush()
+    refresh_monitor_next_run(mon)
     db.commit()
     db.refresh(mon)
     return mon
@@ -75,6 +78,8 @@ def update_monitor(
         data["schedule_cron"] = str(data["schedule_cron"]).strip()
     for key, val in data.items():
         setattr(mon, key, val)
+    if any(k in data for k in ("schedule_cron", "timezone", "status")):
+        refresh_monitor_next_run(mon)
     db.commit()
     db.refresh(mon)
     return mon
